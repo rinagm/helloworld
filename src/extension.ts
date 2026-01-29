@@ -2,81 +2,80 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-// Create decoration type once to avoid memory leaks
-const greetingDecoration = vscode.window.createTextEditorDecorationType({
-	color: '#FFA500',
-	backgroundColor: '#702525',
-	fontWeight: 'bold',
-});
-
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "helloworld" is now active!');
 
-	// Command 1: Hello World y Time
-	const helloWorldCommand = vscode.commands.registerCommand('helloworld.helloWorld', 
+	// 1️⃣ Command 1: Hello World y Hour
+	const helloWorldCommand = vscode.commands.registerCommand(
+		'helloworld.helloWorld', 
 		() => {
-			vscode.window.showInformationMessage('Update version 🚀');
+			vscode.window.showInformationMessage('Hello from my first extension🚀');
 		
 			const now = new Date();
     		const time = now.toLocaleTimeString();
-    		vscode.window.showInformationMessage(`Hour: ${time}`);
+
+    		vscode.window.showInformationMessage(now.toLocaleString());
 		}
 	);			
 
-	// Command 2: Ask Name
-	const askNameCommand = vscode.commands.registerCommand('extension.askName',
+	// 2️⃣ Command 2: Ask Name
+	const askNameCommand = vscode.commands.registerCommand(
+		'extension.askName',
 		async () => {
-			const name = await vscode.window.showInputBox({ prompt: "What is your name?"});
+			const name = await vscode.window.showInputBox({prompt: 'What is your name?'});
 			if (name) {
-			vscode.window.showInformationMessage(`Hello, ${name}! 👋`);}
+			vscode.window.showInformationMessage(`Hello, ${name}!👋`);}
 		});
 
-	// Command 3: Insert Greeting
-	const insertGreetingCommand = vscode.commands.registerCommand(
-	'extension.insertGreeting',
+	// 3️⃣ Command 3: Greeting with Time Insertion
+	const greetingWithTimeCommand = vscode.commands.registerCommand(
+    	'extension.greetingWithTime',
+    	async () => {
+        	const editor = vscode.window.activeTextEditor;
+			if (!editor) {
+				vscode.window.showErrorMessage('No active text editor found.');
+				return;
+			}
+
+        	const now = new Date();
+        	const time = now.toLocaleTimeString();
+
+        	await editor.edit(editBuilder => {
+            	editBuilder.insert(editor.selection.active, `Hour: (${time})`);
+        	});
+	});
+
+	// 4️⃣ Command 4: Uppercase
+	const uppercaseCommand = vscode.commands.registerCommand(
+		'extension.uppercase',
 		async () => {
-		const editor = vscode.window.activeTextEditor;
-		// If not open editor, show warning message
-		if (!editor) {
-			vscode.window.showWarningMessage('There is no active editor');
-			return;
-		}
+			const editor = vscode.window.activeTextEditor;
+			if (!editor) {
+				vscode.window.showErrorMessage('No active text editor found.');
+				return;
+			}
+			
+			const selection = editor.selection; // Get the current selection
+				if (!editor) {
+					vscode.window.showErrorMessage('No active text editor found.');
+					return;
+			}
 
-		const name = await vscode.window.showInputBox({
-			prompt: 'What is your name?',
-		});
-
-		// If no name, return
-		if (!name) {
-			return;
-		}
-
-        // Insert greeting at cursor position
-		const position = editor.selection.active;
-		const text = `Hello ${name} 👋`;
-
-		await editor.edit(editBuilder => {
-    		editBuilder.insert(position, text);
-		});
-
-		// Get the current editor again to ensure we have the right one
-		const currentEditor = vscode.window.activeTextEditor;
-		if (currentEditor) {
-			const start = position;
-			const end = position.translate(0, text.length);
-			const range = new vscode.Range(start, end);
-			currentEditor.setDecorations(greetingDecoration, [range]);
-		}
-});
-
-	context.subscriptions.push(insertGreetingCommand);
-	context.subscriptions.push(helloWorldCommand, askNameCommand);
-	context.subscriptions.push(greetingDecoration);
+			const text = editor.document.getText(selection); // Get the selected text
+			await editor.edit(editBuilder => {
+				editBuilder.replace(selection, text.toUpperCase()); // Replace with uppercase text
+			});
+	}
+);
+	// Add commands to the context's subscriptions
+	context.subscriptions.push(helloWorldCommand);
+	context.subscriptions.push(askNameCommand);
+	context.subscriptions.push(greetingWithTimeCommand);
+	context.subscriptions.push(uppercaseCommand);
 }
 
 // This method is called when your extension is deactivated

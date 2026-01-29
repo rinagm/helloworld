@@ -18,17 +18,18 @@
         "command": "helloworld.helloWorld",
         "title": "Hello World"
       },
-      
       {
         "command": "extension.askName",
         "title": "Ask for name"
       },
-
       {
-        "command": "extension.insertGreeting",
-        "title": "Insert greeting into editor"
+        "command": "extension.greetingWithTime",
+        "title": "Insert greeting"
+      },
+      {
+        "command": "extension.uppercase",
+        "title": "Convert to Uppercase"
       }
-
     ]
   },
   "scripts": {
